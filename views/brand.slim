@@ -1,0 +1,21 @@
+dl.dl-horizontal
+  dt Название бренда
+  dd = brand.title
+  dt Страна происхождения
+  dd = brand.country
+  dt Год основания 
+  dd = brand.year
+  - if brand.founder.present?
+    dt Основатель 
+    dd = brand.founder.to_s
+  - if brand.ceo.present?
+    dt Руководитель
+    dd = brand.ceo.to_s
+  dt Продукция ТМ
+  dd == brand.categories.map {|c| link_to_category(c)}.join(', ')
+  - if brand.site.present?
+    dt Сайт #{brand.title}
+    dd = brand.site
+
+== brand.desc
+

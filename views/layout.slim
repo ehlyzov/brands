@@ -1,0 +1,29 @@
+doctype html
+html
+  head
+    script src="/js/bootstrap.min.js"
+    script src="/js/jquery-1.8.3.min.js"
+    link rel="stylesheet" href="/css/bootstrap.min.css"
+    link rel="stylesheet" href="/css/my.css"
+  body         
+    .container
+      .row
+        .offset2.span8
+          .page-header
+            h1 == title
+
+      .row
+        .span2
+          ul.nav.nav-list.is-sidebar
+            li.nav-header Категории
+            li
+              a href='/aksessuary' Аксессуары
+            li
+              a href='/bizhuteria' Бижутерия
+            li
+              a href='/obuv' Обувь
+            li
+              a href='/sumki' Сумки
+
+        .span8
+          == yield  
