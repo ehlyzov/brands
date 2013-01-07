@@ -6,7 +6,7 @@ require 'dm-migrations'
 require 'unicode'
 require 'rake'
 
-load File.expand_path(File.dirname(__FILE__) + '/Rakefile')
+
 
 configure do
   set :public_folder, Proc.new { File.join(root, "bootstrap") }
@@ -22,11 +22,13 @@ class Object
     end
   end
   
-DataMapper.setup(:default, ENV['DATABASE_URL'] || "sqlite://#{Dir.pwd}/my.db")
-# TODO: Add database models here.
+  DataMapper.setup(:default, ENV['DATABASE_URL'] || "sqlite://#{Dir.pwd}/my.db")
+  DataMapper::Property::String.length(255)
+
 
 class Catalog
   include DataMapper::Resource
+  
   belongs_to :brand
   property :id, Serial
   property :page_title, String
@@ -63,6 +65,7 @@ end
 
 class Category
   include DataMapper::Resource
+  
   property :slug, String, key: true
   property :title, String
   
@@ -72,7 +75,7 @@ end
 
 class Categorization
   include DataMapper::Resource
-
+  
   property :id, Serial
 
   belongs_to :category
@@ -102,8 +105,15 @@ get '/' do
 end
 
 get '/updatedb' do
-  Rake::Task['clean'].invoke.join('\n')
-  Rake::Task['import'].invoke.join('\n')
+  unless Rake::Task.task_defined?('import')
+    load File.expand_path(File.dirname(__FILE__) + '/Rakefile')
+  end
+  
+  Rake::Task['clean'].invoke
+  Rake::Task['import'].invoke
+  
+  Rake::Task['clean'].reenable
+  Rake::Task['import'].reenable
   slim "<pre>ok</pre>", layout: false
 end
 
