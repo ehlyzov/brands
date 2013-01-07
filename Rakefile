@@ -8,7 +8,9 @@ desc "импорт данных из csv"
 task :import do
   require './app'
   require 'csv'
-  CSV.foreach('./data.csv', headers: true) do |row|
+  require 'open-uri'
+  
+  CSV.parse(open('https://docs.google.com/spreadsheet/pub?key=0Au0stnPml5jIdHhSZl9NQTdtMHpqdWFCYk9SWm55cXc&single=true&gid=0&output=csv').read, headers: true) do |row|
     brand_hash = {
       title: row[0],
       translit: row[1],
@@ -20,9 +22,11 @@ task :import do
       page_title: row[8],
       meta_description: row[9],
       meta_keywords: row[10],
-      desc: row[11],
-      slug: Russian::translit(row[0])
+      slug: Russian::translit(row[0]).downcase.gsub(/\s/,'-')
     }
+    
+    brand_hash[:desc] = row[11].gsub(/CATALOG_URL/,"/catalog-#{brand_hash[:slug]}")
+
     brand = Brand.create(brand_hash)
     
     puts "Бренд: #{brand.title}"
@@ -31,24 +35,23 @@ task :import do
       if category = Category.first(title: title)
         category
       else
-        Category.create(title: title, slug: Russian::translit(title))
+        Category.create(title: title, slug: Russian::translit(title).downcase.gsub(/\s/,'-'))
       end
     end.each do |category|
       Categorization.create(brand: brand, category: category)
     end
-
-    catalog_hash = {
-      page_title: row[12],      
-      meta_description: row[13],
-      meta_keywords: row[14],
-      title: row[15],
-      text: row[16],
-      brand: brand
-    }
-
-    if catalog_hash[:title]
+    
+    if row[12]
+      catalog_hash = {
+        page_title: row[12],      
+        meta_description: row[13],
+        meta_keywords: row[14],
+        title: row[15],
+        text: row[16],
+        brand: brand
+      }
       catalog = Catalog.create(catalog_hash)
-      puts "Каталог Бренда: #{catalog_hash}"
+      puts "Каталог Бренда: #{catalog.title}"
     end
   end
 end
