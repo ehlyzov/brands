@@ -1,2 +1,4 @@
-- brands.each do |brand|
-  a href="/#{brand.slug}" = brand.title
+ul.inline
+  - brands.each do |brand|
+    li
+      a href="/#{brand.slug}" = brand.title
