@@ -22,10 +22,26 @@ class Object
 DataMapper.setup(:default, ENV['DATABASE_URL'] || "sqlite://#{Dir.pwd}/my.db")
 # TODO: Add database models here.
 
+class Catalog
+  include DataMapper::Resource
+  belongs_to :brand
+  property :id, Serial
+  property :page_title, String
+  property :title, String
+  property :meta_description, Text
+  property :meta_keywords, Text
+  property :text, Text
+end
+  
 class Brand
   include DataMapper::Resource
 
   property :title, String
+
+  property :page_title, String
+  property :meta_description, Text
+  property :meta_keywords, Text
+  
   property :translit, String
   property :slug, String, key: true
   property :country, String
@@ -39,7 +55,7 @@ class Brand
   has n, :categorizations  
   has n, :categories, through: :categorizations
 
-  
+  has 1, :catalog
 end
 
 class Category
