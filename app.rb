@@ -118,15 +118,17 @@ get '/updatedb' do
 end
 
 get '/catalog-:s' do |slug|
-  brand = Brand.get(slug)
-  catalog = brand.catalog
-  slim '== text', locals: {
-    text: catalog.text,
-    title: catalog.title,
-    meta_description: catalog.meta_description,
-    meta_keywords: catalog.meta_keywords,
-    page_title: catalog.page_title
-  }
+  if brand = Brand.get(slug) && catalog = brand.catalog
+    slim '== text', locals: {
+      text: catalog.text,
+      title: catalog.title,
+      meta_description: catalog.meta_description,
+      meta_keywords: catalog.meta_keywords,
+      page_title: catalog.page_title
+    }
+  else
+    404
+  end
 end
 
 get '/:s' do |slug|
