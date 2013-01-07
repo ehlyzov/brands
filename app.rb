@@ -4,6 +4,9 @@ require 'slim'
 require 'dm-core'
 require 'dm-migrations'
 require 'unicode'
+require 'rake'
+
+load File.expand_path(File.dirname(__FILE__) + '/Rakefile')
 
 configure do
   set :public_folder, Proc.new { File.join(root, "bootstrap") }
@@ -91,17 +94,44 @@ not_found do
   slim :'404', layout: false
 end
 
+get '/' do
+  slim :home, locals: {
+    brands: Brand.all,
+    title: "Каталог Брендов"
+  }
+end
+
+get '/updatedb' do
+  Rake::Task['clean'].invoke.join('\n')
+  Rake::Task['import'].invoke.join('\n')
+  slim "<pre>ok</pre>", layout: false
+end
+
+get '/catalog-:s' do |slug|
+  brand = Brand.get(slug)
+  catalog = brand.catalog
+  slim '== text', locals: {
+    text: catalog.text,
+    title: catalog.title,
+    meta_description: catalog.meta_description,
+    meta_keywords: catalog.meta_keywords,
+    page_title: catalog.page_title
+  }
+end
+
 get '/:s' do |slug|
   if brand = Brand.get(slug)  
     slim :brand, locals: {
       brand: brand,
-      categories: Category.all,
-      title: "#{brand.title}<small> / #{brand.translit}</small>"
+      title: "#{brand.title}<small> / #{brand.translit}</small>",
+      page_title: brand.page_title,
+      meta_description: brand.meta_description,
+      meta_keywords: brand.meta_keywords      
     }
   elsif category = Category.get(slug)
     slim :category, locals: {
       category: category,
-      title: Unicode::capitalize(category.title)
+      title: Unicode::capitalize(category.title),
     }
   else
     404
