@@ -118,7 +118,7 @@ get '/updatedb' do
 end
 
 get '/catalog-:s' do |slug|
-  if brand = Brand.get(slug) && catalog = brand.catalog
+  if (brand = Brand.get(slug)) && (catalog = brand.catalog)
     slim '== text', locals: {
       text: catalog.text,
       title: catalog.title,
