@@ -6,6 +6,7 @@ gem "datamapper"
 gem "unicode"
 gem "dm-postgres-adapter"
 gem "russian"
+gem "thin"
 
 group :development do
   gem "rerun"
